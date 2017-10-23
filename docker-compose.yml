@@ -1,0 +1,41 @@
+version: '2'
+services:
+  web:
+    build: .
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "./.data/app/data:/var/www/html/nextcloud/data"
+      - "./.data/app/config:/var/www/html/nextcloud/config"
+      - "./.data/app/apps:/var/www/html/nextcloud/apps"
+    depends_on:
+      - mysql
+      - redis
+    links:
+      - mysql
+      - redis
+    restart: always
+    environment:
+      DB_NAME: nextcloud
+      DB_USER: nextcloud
+      DB_PASSWORD: nextcloud
+      DB_HOST: mysql
+      ADMIN_USER: admin
+      ADMIN_PASSWORD: admin
+      ADMIN_HOST: admin
+      TRUSTED_DOMAIN: localhost
+
+  mysql:
+    image: mysql:5.6
+    volumes: 
+      - "./.data/db:/var/lib/mysql"
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: nextcloud
+      MYSQL_DATABASE: nextcloud
+      MYSQL_USER: nextcloud
+      MYSQL_PASSWORD: nextcloud
+
+  redis:
+    image: redis

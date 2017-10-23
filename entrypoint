@@ -1,0 +1,112 @@
+#!/bin/bash
+set -e
+#set -x
+
+HOME_DIR=/var/www/html/nextcloud
+OCC="sudo -u www-data php $HOME_DIR/occ "
+
+########### begin apache
+
+# Ensure blocklists directory exists
+mkdir -p /etc/apache2/blocklists
+
+# Install letsencrypt or create self signed certificates on the fly
+  mkdir -p /certs
+  if ! [ -e /certs/key ] ; then
+    openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /certs/key -out /certs/cert -subj '/O=it-economics/OU=IT/CN=localhost'
+    chmod 400 /certs/key
+    cp /certs/cert /certs/chain
+  fi
+
+##### letsencrypt and ssl redirect
+# Ensure server name is set to trusted domain
+sed -i "s/SERVERNAME/$TRUSTED_DOMAIN/" /etc/apache2/sites-available/nextcloud.conf
+
+# Ensure letsencrypt certificate is installed if exists
+if [ -d /etc/letsencrypt ] ; then
+  letsencrypt --apache --non-interactive --agree-tos --email $EMAIL --domains $TRUSTED_DOMAIN
+fi
+#####
+
+#### cleanup
+source /etc/apache2/envvars
+
+# Cleanup locks
+for i in "$APACHE_PID_FILE" ; do
+  rm -fr "$i"
+done
+
+# Ensure directories exist
+for i in "$(dirname $APACHE_PID_FILE)" "$APACHE_LOCK_DIR" ; do
+  mkdir -p "$i"
+done
+
+########### end apache
+
+########### begin nextcloud
+
+# Restore original apps because of volume mount when directory is empty
+for i in $HOME_DIR/apps_original/* ; do
+  rm -fr $HOME_DIR/apps/$(basename $i)
+  cp -a $HOME_DIR/apps_original/$(basename $i) $HOME_DIR/apps/$(basename $i)
+done
+
+# Wait for database to come up
+wait_for_db=$(mktemp)
+cat << EOF > $wait_for_db
+<?php
+\$connected = false;
+while(!\$connected) {
+    try{
+        \$dbh = new pdo( 
+            'mysql:host=$DB_HOST;dbname=$DB_NAME', '$DB_USER', '$DB_PASSWORD',
+            array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION)
+        );
+        \$connected = true;
+    }
+    catch(PDOException \$ex){
+        error_log("Could not connect to MySQL");
+        error_log(\$ex->getMessage());
+        error_log("Waiting for MySQL Connection.");
+        sleep(5);
+    }
+}
+EOF
+php $wait_for_db
+
+# Ensure permissions are correct
+chown -R www-data:www-data $HOME_DIR/config $HOME_DIR/data $HOME_DIR/apps
+
+echo "Check if already installed..."
+set +e
+$OCC status | grep installed | grep false
+installed=$?
+set -e
+if [ $installed -eq 0 ] ; then
+
+  echo "Nextcloud not installed, proceeding with initial setup"
+
+  $OCC maintenance:install \
+                            --database "mysql" \
+                            --database-host="$DB_HOST" \
+                            --database-port=3306 \
+                            --database-name "$DB_NAME" \
+                            --database-user "$DB_USER" \
+                            --database-pass "$DB_PASSWORD" \
+                            --admin-user "$ADMIN_USER" \
+                            --admin-pass "$ADMIN_PASSWORD" \
+                            --no-interaction 
+fi
+
+# Maybe use import? see https://docs.nextcloud.com/server/10/admin_manual/configuration_server/occ_command.html#config-commands-label
+$OCC config:system:set trusted_domains 1 --value "$TRUSTED_DOMAIN"
+$OCC config:system:set overwrite.cli.url --value "https://$TRUSTED_DOMAIN"
+$OCC config:system:set forcessl --value "true" --type boolean
+$OCC config:system:set memcache.local --value '\OC\Memcache\APCu'
+$OCC config:system:set memcache.locking --value '\OC\Memcache\Redis'
+$OCC config:system:set redis host --value "redis"
+$OCC config:system:set redis port --value "6379"
+
+############ begin apache
+tail -F /var/log/apache2/* & exec apache2 -D FOREGROUND
+
