@@ -2,12 +2,12 @@ FROM ubuntu:16.04
 
 ENV TMP_DIR /tmp
 # 11.0.0 is not yet compatible with totp and keeweb
-ENV RELEASE 12.0.3
+ENV RELEASE 12.0.4
 ENV HOME /var/www/html/nextcloud
 # 5 for ubuntu 14.04, '' for 16.04
 ENV PHP_VERSION 7.0
 ENV TERM=xterm
-ENV REFRESHED_AT 2017-10-23
+ENV REFRESHED_AT 2017-12-08
 
 # Download installation files
 ADD https://download.nextcloud.com/server/releases/nextcloud-$RELEASE.tar.bz2 $TMP_DIR
