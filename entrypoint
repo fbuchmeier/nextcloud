@@ -13,6 +13,7 @@ mkdir -p /etc/apache2/blocklists
 # Install letsencrypt or create self signed certificates on the fly
   mkdir -p /certs
   if ! [ -e /certs/key ] ; then
+w
     openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /certs/key -out /certs/cert -subj '/O=it-economics/OU=IT/CN=localhost'
     chmod 400 /certs/key
     cp /certs/cert /certs/chain
@@ -46,9 +47,9 @@ done
 ########### begin nextcloud
 
 # Restore original apps because of volume mount when directory is empty
-for i in $HOME_DIR/apps_original/* ; do
+for i in /opt/apps_original/* ; do
   rm -fr $HOME_DIR/apps/$(basename $i)
-  cp -a $HOME_DIR/apps_original/$(basename $i) $HOME_DIR/apps/$(basename $i)
+  cp -a /opt/apps_original/$(basename $i) $HOME_DIR/apps/$(basename $i)
 done
 
 # Wait for database to come up
@@ -106,6 +107,9 @@ $OCC config:system:set memcache.local --value '\OC\Memcache\APCu'
 $OCC config:system:set memcache.locking --value '\OC\Memcache\Redis'
 $OCC config:system:set redis host --value "redis"
 $OCC config:system:set redis port --value "6379"
+
+# Cleanup unused files from home
+rm -f $HOME_DIR/.rnd
 
 ############ begin apache
 tail -F /var/log/apache2/* & exec apache2 -D FOREGROUND
