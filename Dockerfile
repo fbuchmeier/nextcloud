@@ -1,7 +1,7 @@
 FROM ubuntu:16.04
 
 ENV TMP_DIR /tmp
-ENV RELEASE 13.0.0
+ENV RELEASE 13.0.1
 ENV HOME /var/www/html/nextcloud
 # 5 for ubuntu 14.04, '' for 16.04
 ENV PHP_VERSION 7.0

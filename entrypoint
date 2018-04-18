@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-#set -x
+set -x
 
 HOME_DIR=/var/www/html/nextcloud
 OCC="sudo -u www-data php $HOME_DIR/occ "
@@ -23,10 +23,11 @@ w
 # Ensure server name is set to trusted domain
 sed -i "s/SERVERNAME/$TRUSTED_DOMAIN/" /etc/apache2/sites-available/nextcloud.conf
 
+# Run this command manually inside the container, but only once
 # Ensure letsencrypt certificate is installed if exists
-if [ -d /etc/letsencrypt ] ; then
-  letsencrypt --apache --non-interactive --agree-tos --email $EMAIL --domains $TRUSTED_DOMAIN
-fi
+#if [ -d /etc/letsencrypt ] ; then
+#  letsencrypt --apache --non-interactive --agree-tos --email $EMAIL --domains $TRUSTED_DOMAIN
+#fi
 #####
 
 #### cleanup
@@ -48,8 +49,12 @@ done
 
 # Restore original apps because of volume mount when directory is empty
 for i in /opt/apps_original/* ; do
-  rm -fr $HOME_DIR/apps/$(basename $i)
-  cp -a /opt/apps_original/$(basename $i) $HOME_DIR/apps/$(basename $i)
+  if ! [ -e $HOME_DIR/apps/$(basename $i) ] ; then
+    rm -fr $HOME_DIR/apps/$(basename $i)
+    cp -a /opt/apps_original/$(basename $i) $HOME_DIR/apps/$(basename $i)
+  else
+    continue
+  fi
 done
 
 # Wait for database to come up
