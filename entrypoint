@@ -14,7 +14,7 @@ mkdir -p /etc/apache2/blocklists
   mkdir -p /certs
   if ! [ -e /certs/key ] ; then
 w
-    openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /certs/key -out /certs/cert -subj '/O=it-economics/OU=IT/CN=localhost'
+    openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /certs/key -out /certs/cert -subj '/O=localdomain/OU=IT/CN=localhost'
     chmod 400 /certs/key
     cp /certs/cert /certs/chain
   fi
