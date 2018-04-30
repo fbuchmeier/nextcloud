@@ -1,12 +1,12 @@
 FROM ubuntu:16.04
 
 ENV TMP_DIR /tmp
-ENV RELEASE 13.0.1
+ENV RELEASE 13.0.2
 ENV HOME /var/www/html/nextcloud
 # 5 for ubuntu 14.04, '' for 16.04
 ENV PHP_VERSION 7.0
 ENV TERM=xterm
-ENV REFRESHED_AT 2018-03-03
+ENV REFRESHED_AT 2018-04-30
 
 # Download installation files
 ADD https://download.nextcloud.com/server/releases/nextcloud-$RELEASE.tar.bz2 $TMP_DIR
