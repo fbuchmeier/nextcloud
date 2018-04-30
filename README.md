@@ -70,3 +70,5 @@ Also, add a cronjob to run the following command:
 30 6,15 * * * root docker exec nextcloud_web_1 letsencrypt renew --agree-tos
 ```
 
+# License
+Licensed under the MIT License, see LICENSE for more details.
