@@ -1,6 +1,64 @@
-# WORK IN PROGRESS
-Use at your own risk.
-# Letsencrypt
+Nextcloud as a Docker Container
+==============================
+
+# Description
+This docker image contains Nextcloud packaged with Apache2 HTTPD.
+The docker-compose file provisions Nextcloud, MySQL and Redis.
+
+# Requirements
+* Docker
+* Docker Compose
+
+# Usage
+Adjust `docker-compose.yml` to your liking (be sure to update the passwords!) and then run:
+
+```
+docker-compose up -d
+```
+
+## Variables
+
+### Nextcloud
+
+* `ADMIN_USER`
+```
+ADMIN_USER: admin
+```
+The username for the initial admin user, created on a new installation.
+
+* `ADMIN_PASSWORD`
+```
+ADMIN_PASSWORD: admin
+```
+The password for the initial admin user, created on a new installation.
+
+* `TRUSTED_DOMAIN`
+```
+TRUSTED_DOMAIN: localhost
+```
+The trusted domain that is used by Nextcloud to determine if access is granted, as well as by Let's Encrypt, if you want to use it.
+
+### MySQL
+
+* `MYSQL_ROOT_PASSWORD`
+```
+MYSQL_ROOT_PASSWORD: nextcloud
+```
+The password of the user `root` in the database.
+
+* `MYSQL_USER`
+```
+MYSQL_USER: nextcloud
+```
+The user used to connect to the database.
+
+* `MYSQL_PASSWORD`
+```
+MYSQL_PASSWORD: nextcloud
+```
+The password used to connect to the database.
+
+# Enable Letsencrypt
 When using letsencrypt, specify an EMAIL address to your desired TRUSTED_DOMAIN for letsencryp, then run:
 
 ```
