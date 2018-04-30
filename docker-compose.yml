@@ -25,6 +25,7 @@ services:
       ADMIN_PASSWORD: admin
       ADMIN_HOST: admin
       TRUSTED_DOMAIN: localhost
+      EMAIL: noreply@example.com
 
   mysql:
     image: mysql:5.6

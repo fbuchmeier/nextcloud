@@ -10,8 +10,17 @@ The docker-compose file provisions Nextcloud, MySQL and Redis.
 * Docker Compose
 
 # Usage
-Adjust `docker-compose.yml` to your liking (be sure to update the passwords!) and then run:
+Adjust `docker-compose.yml` to your liking (be sure to update the passwords!):
+```
+vim docker-compose.yml
+```
 
+Set permissions to secure your passwords:
+```
+chmod 600
+```
+
+and then run:
 ```
 docker-compose up -d
 ```
@@ -37,6 +46,12 @@ The password for the initial admin user, created on a new installation.
 TRUSTED_DOMAIN: localhost
 ```
 The trusted domain that is used by Nextcloud to determine if access is granted, as well as by Let's Encrypt, if you want to use it.
+
+* `EMAIL`
+```
+EMAIL: noreply@example.com
+```
+The email address used by Let's Encrypt to generate a new certificate.
 
 ### MySQL
 
