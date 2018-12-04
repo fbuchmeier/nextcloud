@@ -1,12 +1,12 @@
 FROM ubuntu:16.04
 
 ENV TMP_DIR /tmp
-ENV RELEASE 13.0.2
+ENV RELEASE 14.0.4
 ENV HOME /var/www/html/nextcloud
 # 5 for ubuntu 14.04, '' for 16.04
 ENV PHP_VERSION 7.0
 ENV TERM=xterm
-ENV REFRESHED_AT 2018-04-30
+ENV REFRESHED_AT 2018-12-04
 
 # Download installation files
 ADD https://download.nextcloud.com/server/releases/nextcloud-$RELEASE.tar.bz2 $TMP_DIR
@@ -45,7 +45,6 @@ RUN apt-get update \
 			bzip2 \
       sudo \
 			ffmpeg \
-			libreoffice \
       smbclient \
       python-letsencrypt-apache \
       wget
@@ -73,6 +72,7 @@ RUN a2enmod \
       dir \
       mime \
       ssl \
+      proxy_http \
 	    && a2ensite nextcloud.conf \
       && a2dissite 000-default default-ssl \
       && rm /var/www/html/index.html
