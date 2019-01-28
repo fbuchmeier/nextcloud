@@ -6,7 +6,7 @@ ENV HOME /var/www/html/nextcloud
 # 5 for ubuntu 14.04, '' for 16.04
 ENV PHP_VERSION 7.0
 ENV TERM=xterm
-ENV REFRESHED_AT 2018-12-04
+ENV REFRESHED_AT 2019-01-28
 
 # Download installation files
 ADD https://download.nextcloud.com/server/releases/nextcloud-$RELEASE.tar.bz2 $TMP_DIR
@@ -46,8 +46,14 @@ RUN apt-get update \
       sudo \
 			ffmpeg \
       smbclient \
-      python-letsencrypt-apache \
+      software-properties-common \
       wget
+
+# Install Certbot
+RUN add-apt-repository universe \
+  && add-apt-repository ppa:certbot/certbot \
+  && apt-get update \
+  && apt-get install -y certbot python-certbot-apache 
 
 # Install application
 RUN cd $TMP_DIR && tar -xjf nextcloud-$RELEASE.tar.bz2 && mv nextcloud $HOME && cp -a $HOME/apps /opt/apps_original
