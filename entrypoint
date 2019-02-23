@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
-set -x
 
 HOME_DIR=/var/www/html/nextcloud
 OCC="sudo -u www-data php $HOME_DIR/occ "
@@ -9,26 +8,6 @@ OCC="sudo -u www-data php $HOME_DIR/occ "
 
 # Ensure blocklists directory exists
 mkdir -p /etc/apache2/blocklists
-
-# Install letsencrypt or create self signed certificates on the fly
-  mkdir -p /certs
-  if ! [ -e /certs/key ] ; then
-w
-    openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /certs/key -out /certs/cert -subj '/O=localdomain/OU=IT/CN=localhost'
-    chmod 400 /certs/key
-    cp /certs/cert /certs/chain
-  fi
-
-##### letsencrypt and ssl redirect
-# Ensure server name is set to trusted domain
-sed -i "s/SERVERNAME/$TRUSTED_DOMAIN/" /etc/apache2/sites-available/nextcloud.conf
-
-# Run this command manually inside the container, but only once
-# Ensure letsencrypt certificate is installed if exists
-#if [ -d /etc/letsencrypt ] ; then
-#  letsencrypt --apache --non-interactive --agree-tos --email $EMAIL --domains $TRUSTED_DOMAIN
-#fi
-#####
 
 #### cleanup
 source /etc/apache2/envvars
@@ -48,14 +27,8 @@ done
 ########### begin nextcloud
 
 # Restore original apps because of volume mount when directory is empty
-for i in /opt/apps_original/* ; do
-  if ! [ -e $HOME_DIR/apps/$(basename $i) ] ; then
-    rm -fr $HOME_DIR/apps/$(basename $i)
-    cp -a /opt/apps_original/$(basename $i) $HOME_DIR/apps/$(basename $i)
-  else
-    continue
-  fi
-done
+rsync -a /opt/apps_original/ /var/www/html/nextcloud/apps/
+chown -R www-data:www-data /var/www/html/nextcloud/apps
 
 # Wait for database to come up
 wait_for_db=$(mktemp)
@@ -107,6 +80,7 @@ fi
 # Maybe use import? see https://docs.nextcloud.com/server/10/admin_manual/configuration_server/occ_command.html#config-commands-label
 $OCC config:system:set trusted_domains 1 --value "$TRUSTED_DOMAIN"
 $OCC config:system:set overwrite.cli.url --value "https://$TRUSTED_DOMAIN"
+$OCC config:system:set overwriteprotocol --value "https"
 $OCC config:system:set forcessl --value "true" --type boolean
 $OCC config:system:set memcache.local --value '\OC\Memcache\APCu'
 $OCC config:system:set memcache.locking --value '\OC\Memcache\Redis'

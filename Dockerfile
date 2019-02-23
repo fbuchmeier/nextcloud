@@ -1,12 +1,11 @@
 FROM ubuntu:16.04
 
 ENV TMP_DIR /tmp
-ENV RELEASE 14.0.4
+ENV RELEASE 15.0.4
 ENV HOME /var/www/html/nextcloud
-# 5 for ubuntu 14.04, '' for 16.04
 ENV PHP_VERSION 7.0
 ENV TERM=xterm
-ENV REFRESHED_AT 2019-01-28
+ENV REFRESHED_AT 2019-02-23
 
 # Download installation files
 ADD https://download.nextcloud.com/server/releases/nextcloud-$RELEASE.tar.bz2 $TMP_DIR
@@ -47,7 +46,8 @@ RUN apt-get update \
 			ffmpeg \
       smbclient \
       software-properties-common \
-      wget
+      wget \
+      rsync
 
 # Install Certbot
 RUN add-apt-repository universe \
@@ -100,5 +100,5 @@ COPY entrypoint /entrypoint
 
 WORKDIR $HOME
 
-CMD [ "/entrypoint"]
+CMD [ "/entrypoint" ]
 
