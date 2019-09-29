@@ -1,11 +1,11 @@
 FROM ubuntu:18.04
 
 ENV TMP_DIR /tmp
-ENV RELEASE 16.0.0
+ENV RELEASE 16.0.5
 ENV HOME /var/www/html/nextcloud
 ENV PHP_VERSION 7.2
 ENV TERM=xterm
-ENV REFRESHED_AT 2019-05-03
+ENV REFRESHED_AT 2019-09-27
 ENV DEBIAN_FRONTEND noninteractive
 ENV DEBCONF_NONINTERACTIVE_SEEN true
 
@@ -36,12 +36,6 @@ RUN apt-get update \
       software-properties-common \
       wget \
       rsync
-
-# Install Certbot
-RUN add-apt-repository universe \
-  && add-apt-repository ppa:certbot/certbot \
-  && apt-get update \
-  && apt-get install -y certbot python-certbot-apache 
 
 # Download installation files
 WORKDIR $TMP_DIR
