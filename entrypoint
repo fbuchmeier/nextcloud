@@ -6,9 +6,6 @@ OCC="sudo -u www-data php $HOME_DIR/occ "
 
 ########### begin apache
 
-# Ensure blocklists directory exists
-mkdir -p /etc/apache2/blocklists
-
 #### cleanup
 source /etc/apache2/envvars
 
@@ -54,7 +51,7 @@ EOF
 php $wait_for_db
 
 # Ensure permissions are correct
-chown -R www-data:www-data $HOME_DIR/config $HOME_DIR/data $HOME_DIR/apps
+chown -R www-data:www-data $HOME_DIR/config $HOME_DIR/data $HOME_DIR/apps $HOME_DIR/.htaccess
 
 echo "Check if already installed..."
 set +e
