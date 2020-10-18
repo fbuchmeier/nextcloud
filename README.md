@@ -1,5 +1,11 @@
 # Nextcloud as a Docker Container
 
+## DEPRECATION NOTICE
+
+This repository has been deprecated in favor of the official Nextcloud Docker Image found at: https://github.com/nextcloud/docker
+
+It is now read only and will no longer be updated.
+
 ## Description
 
 This docker image contains Nextcloud packaged with Apache2 HTTPD.
